@@ -82,10 +82,3 @@ func ParseCoin(coinStr string) (coin Coin) {
 		Amount: amt,
 	}
 }
-
-//func BuildFee(fee auth.StdFee) store.Fee {
-//	return store.Fee{
-//		Amount: ParseCoins(fee.Amount.String()),
-//		Gas:    int64(fee.Gas),
-//	}
-//}
