@@ -1,11 +1,11 @@
-package service
+package core
 
 import (
 	"fmt"
 	serverConf "github.com/irisnet/irishub-sync/conf/server"
+	"github.com/irisnet/irishub-sync/core/service"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/rpc"
-	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
@@ -13,7 +13,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"gopkg.in/mgo.v2/txn"
 	"os"
-	"sync"
 	"time"
 )
 
@@ -179,7 +178,7 @@ func executeTask(blockNumPerWorkerHandle, maxWorkerSleepTime int64, chanLimit ch
 
 				if taskType == document.SyncTaskTypeFollow {
 					// compare and update validators
-					handler.CompareAndUpdateValidators()
+					service.CompareAndUpdateValidators()
 				}
 			}
 		} else {
@@ -228,15 +227,12 @@ func assertTaskValid(task document.SyncTask, blockNumPerWorkerHandle, blockChain
 }
 
 func parseBlock(b int64, client *rpc.Client) (document.Block, error) {
-	var (
-		mutex    sync.Mutex
-		blockDoc document.Block
-	)
+	var blockDoc document.Block
 
 	// define functions which should be executed
 	// during parse tx and block
-	funcChain := []handler.Action{
-		handler.SaveTx, handler.SaveAccount, handler.SaveOrUpdateDelegator,
+	services := []service.Service{
+		service.SaveTx, service.SaveAccount, service.SaveOrUpdateDelegator,
 	}
 
 	block, err := client.Block(&b)
@@ -257,13 +253,13 @@ func parseBlock(b int64, client *rpc.Client) (document.Block, error) {
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
 		for _, txByte := range txs {
-			docTx := handler.ParseTx(txByte, block.Block)
-			txHash := handler.GetTxHash(txByte.Hash())
+			docTx := service.ParseTx(txByte, block.Block)
+			txHash := service.GetTxHash(txByte.Hash())
 			if txHash == "" {
 				logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))
 				continue
 			}
-			handler.Handle(docTx, mutex, funcChain)
+			service.Execute(docTx, services)
 		}
 	}
 
@@ -276,7 +272,7 @@ func parseBlock(b int64, client *rpc.Client) (document.Block, error) {
 		validators = res.Validators
 	}
 
-	return handler.ParseBlock(block.BlockMeta, block.Block, validators), nil
+	return service.ParseBlock(block.BlockMeta, block.Block, validators), nil
 }
 
 // assert task worker unchanged

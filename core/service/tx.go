@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"encoding/hex"
@@ -10,11 +10,10 @@ import (
 	"github.com/irisnet/irishub-sync/util"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 // save Tx document into collection
-func SaveTx(docTx document.CommonTx, mutex sync.Mutex) {
+func SaveTx(docTx document.CommonTx) {
 	var (
 		methodName = "SaveTx"
 	)

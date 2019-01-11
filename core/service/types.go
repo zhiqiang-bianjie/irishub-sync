@@ -1,8 +1,7 @@
-package handler
+package service
 
 import (
 	"github.com/irisnet/irishub-sync/store/document"
-	"sync"
 )
 
 // get tx type
@@ -13,12 +12,13 @@ func GetTxType(docTx document.CommonTx) string {
 	return docTx.Type
 }
 
-type Action = func(tx document.CommonTx, mutex sync.Mutex)
+type Service = func(tx document.CommonTx)
 
-func Handle(docTx document.CommonTx, mutex sync.Mutex, actions []Action) {
+func Execute(docTx document.CommonTx, actions []Service) {
 	for _, action := range actions {
 		if docTx.TxHash != "" {
-			action(docTx, mutex)
+			action(docTx)
 		}
 	}
+
 }

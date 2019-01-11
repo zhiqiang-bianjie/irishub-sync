@@ -1,4 +1,4 @@
-package handler
+package service
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
@@ -11,7 +11,7 @@ import (
 )
 
 // save account
-func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
+func SaveAccount(docTx document.CommonTx) {
 	var (
 		address    string
 		updateTime time.Time

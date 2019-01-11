@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/irisnet/irishub-sync/core"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/rpc"
-	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
 	"os"
 	"os/signal"
@@ -12,7 +12,7 @@ import (
 
 func main() {
 	c := make(chan os.Signal)
-	engine := service.New()
+	engine := core.New()
 
 	defer func() {
 		logger.Info("#########################System Exit##########################")

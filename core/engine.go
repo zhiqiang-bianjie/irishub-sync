@@ -1,9 +1,9 @@
-package service
+package core
 
 import (
+	"github.com/irisnet/irishub-sync/core/crons"
+	"github.com/irisnet/irishub-sync/core/service"
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/service/crons"
-	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/robfig/cron"
 	"time"
 )
@@ -26,7 +26,7 @@ func init() {
 	engine.AddTask(crons.MakeUpdateDelegatorTask())
 
 	// init delegator for genesis validator
-	engine.initFuncs = append(engine.initFuncs, handler.InitDelegator)
+	engine.initFuncs = append(engine.initFuncs, service.InitDelegator)
 }
 
 type SyncEngine struct {

@@ -1,4 +1,4 @@
-package service
+package core
 
 import (
 	serverConf "github.com/irisnet/irishub-sync/conf/server"

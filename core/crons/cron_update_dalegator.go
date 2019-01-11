@@ -2,8 +2,8 @@ package crons
 
 import (
 	"github.com/irisnet/irishub-sync/conf/server"
+	"github.com/irisnet/irishub-sync/core/service"
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 )
@@ -24,7 +24,7 @@ func updateDelegator() {
 	}
 
 	for _, d := range delegators {
-		ubd := handler.BuildUnbondingDelegation(d.Address, d.ValidatorAddr)
+		ubd := service.BuildUnbondingDelegation(d.Address, d.ValidatorAddr)
 		d.UnbondingDelegation = ubd
 		if d.BondedHeight < 0 &&
 			d.UnbondingDelegation.CreationHeight < 0 {
