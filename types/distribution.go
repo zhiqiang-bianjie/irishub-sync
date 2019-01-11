@@ -2,7 +2,7 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/explorer/backend/types"
 )
 
 type WithdrawDelegatorRewardsAllMsg struct {
@@ -16,7 +16,7 @@ func NewWithdrawDelegatorRewardsAllMsg(msg MsgWithdrawDelegatorRewardsAll) Withd
 }
 
 func (s WithdrawDelegatorRewardsAllMsg) Type() string {
-	return constant.TxTypeWithdrawDelegatorRewardsAll
+	return types.TxTypeWithdrawDelegatorRewardsAll
 }
 
 func (s WithdrawDelegatorRewardsAllMsg) String() string {
@@ -37,7 +37,7 @@ func NewWithdrawDelegatorRewardMsg(msg MsgWithdrawDelegatorReward) WithdrawDeleg
 }
 
 func (s WithdrawDelegatorRewardMsg) Type() string {
-	return constant.TxTypeWithdrawDelegatorReward
+	return TxTypeWithdrawDelegatorReward
 }
 
 func (s WithdrawDelegatorRewardMsg) String() string {
@@ -56,7 +56,7 @@ func NewWithdrawValidatorRewardsAllMsg(msg MsgWithdrawValidatorRewardsAll) Withd
 }
 
 func (s WithdrawValidatorRewardsAllMsg) Type() string {
-	return constant.TxTypeWithdrawValidatorRewardsAll
+	return types.TxTypeWithdrawValidatorRewardsAll
 }
 
 func (s WithdrawValidatorRewardsAllMsg) String() string {

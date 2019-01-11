@@ -1,21 +1,21 @@
-package helper
+package rpc
 
 import (
 	"errors"
+	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	cdc := types.GetCodec()
 
-	res, err := Query(types.KeyProposal(proposalID), "gov", constant.StoreDefaultEndPath)
+	res, err := Query(types.KeyProposal(proposalID), "gov", "key")
 	if len(res) == 0 || err != nil {
 		return proposal, errors.New("no data")
 	}
 	var propo types.Proposal
-	cdc.UnmarshalBinaryLengthPrefixed(res, &propo) //TODO
+	cdc.UnmarshalBinaryLengthPrefixed(res, &propo)
 	proposal.ProposalId = proposalID
 	proposal.Title = propo.GetTitle()
 	proposal.Type = propo.GetProposalType().String()
@@ -26,7 +26,7 @@ func GetProposal(proposalID uint64) (proposal document.Proposal, err error) {
 	proposal.VotingStartTime = propo.GetVotingStartTime()
 	proposal.VotingEndTime = propo.GetVotingEndTime()
 	proposal.DepositEndTime = propo.GetDepositEndTime()
-	proposal.TotalDeposit = types.ParseCoins(propo.GetTotalDeposit().String())
+	proposal.TotalDeposit = store.ParseCoins(propo.GetTotalDeposit().String())
 	proposal.Votes = []document.PVote{}
 	return
 }

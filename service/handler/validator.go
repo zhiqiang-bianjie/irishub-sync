@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
@@ -26,7 +27,7 @@ func CompareAndUpdateValidators() {
 	dbCandidates := candidateModel.QueryAll()
 
 	// get all validatorSets from blockChain
-	validators := helper.GetValidators()
+	validators := rpc.GetValidators()
 
 	logger.Debug("Get Validators from blockchain", logger.Any("Validators", validators))
 	var chainValidators []document.Candidate
@@ -137,7 +138,7 @@ func compareValidators(dbVals []document.Candidate, chainVals []document.Candida
 			return true
 		}
 	}
-	logger.Info("Validators Set is not changed ")
+	logger.Debug("Validators Set is not changed ")
 	return false
 }
 
@@ -161,7 +162,7 @@ func updateValidatorsRank(candidates []document.Candidate) {
 func updateValidator(valAddress string) {
 	//var canCollection  document.Candidate
 
-	validator, err := helper.GetValidator(valAddress)
+	validator, err := rpc.GetValidator(valAddress)
 	if err != nil {
 		logger.Error("validator not existed", logger.String("validator", valAddress))
 		return
@@ -171,5 +172,5 @@ func updateValidator(valAddress string) {
 	if err := store.Update(editValidator); err != nil {
 		logger.Error("update candidate error", logger.String("address", valAddress))
 	}
-	logger.Info("Update candidate success", logger.String("Address", valAddress))
+	logger.Debug("Update candidate success", logger.String("Address", valAddress))
 }

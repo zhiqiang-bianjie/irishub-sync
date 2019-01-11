@@ -2,10 +2,10 @@ package handler
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/util/constant"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/types"
 	"sync"
 	"time"
 )
@@ -42,15 +42,15 @@ func SaveAccount(docTx document.CommonTx, mutex sync.Mutex) {
 	}
 
 	switch txType {
-	case constant.TxTypeTransfer, constant.TxTypeStakeDelegate,
-		constant.TxTypeStakeBeginUnbonding, constant.TxTypeStakeCompleteUnbonding:
+	case types.TxTypeTransfer, types.TxTypeStakeDelegate,
+		types.TxTypeStakeBeginUnbonding, types.TxTypeStakeCompleteUnbonding:
 		updateTime = docTx.Time
 		height = docTx.Height
 
 		fun(docTx.From, updateTime, height)
 		fun(docTx.To, updateTime, height)
 		break
-	case constant.TxTypeStakeCreateValidator, constant.TxTypeStakeEditValidator:
+	case types.TxTypeStakeCreateValidator, types.TxTypeStakeEditValidator:
 		address = docTx.From
 		updateTime = docTx.Time
 		height = docTx.Height
@@ -77,7 +77,7 @@ func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
 		}
 
 		// query balance of account
-		account.Amount = helper.QueryAccountBalance(address)
+		account.Amount = rpc.GetBalance(address)
 		if err := store.Update(account); err != nil {
 			logger.Error("updateAccountBalance failed", logger.String("address", account.Address), logger.String("err", err.Error()))
 		}
@@ -90,12 +90,12 @@ func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
 	}
 
 	switch txType {
-	case constant.TxTypeTransfer, constant.TxTypeStakeDelegate,
-		constant.TxTypeStakeBeginUnbonding, constant.TxTypeStakeCompleteUnbonding:
+	case types.TxTypeTransfer, types.TxTypeStakeDelegate,
+		types.TxTypeStakeBeginUnbonding, types.TxTypeStakeCompleteUnbonding:
 		fun(docTx.From)
 		fun(docTx.To)
 		break
-	case constant.TxTypeStakeCreateValidator, constant.TxTypeStakeEditValidator:
+	case types.TxTypeStakeCreateValidator, types.TxTypeStakeEditValidator:
 		fun(docTx.From)
 		break
 	}

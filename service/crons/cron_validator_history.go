@@ -1,4 +1,4 @@
-package task
+package crons
 
 import (
 	"github.com/irisnet/irishub-sync/conf/server"
@@ -9,13 +9,12 @@ import (
 
 func MakeValidatorHistoryTask() Task {
 	return NewLockTaskFromEnv(server.CronSaveValidatorHistory, "save_validator_history_lock", func() {
-		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] begin===================")
-		SaveValidatorHistory()
-		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] end===================")
+		logger.Info("start cron", logger.String("cronNm", "saveValidatorHistory"))
+		saveValidatorHistory()
 	})
 }
 
-func SaveValidatorHistory() {
+func saveValidatorHistory() {
 
 	var vHistory []document.ValidatorHistory
 	var validatorsModel document.Candidate

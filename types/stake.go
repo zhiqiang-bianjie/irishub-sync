@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 type BeginRedelegate struct {
@@ -13,7 +12,7 @@ type BeginRedelegate struct {
 }
 
 func (s BeginRedelegate) Type() string {
-	return constant.TxTypeBeginRedelegate
+	return TxTypeBeginRedelegate
 }
 
 func (s BeginRedelegate) String() string {

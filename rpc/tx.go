@@ -1,6 +1,6 @@
 // package for parse tx struct from binary data
 
-package helper
+package rpc
 
 import (
 	"encoding/hex"
@@ -8,7 +8,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	itypes "github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/util/helper"
 	"strconv"
 	"strings"
 )
@@ -32,12 +32,12 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 	height := block.Height
 	time := block.Time
-	txHash := BuildHex(txBytes.Hash())
-	fee := itypes.BuildFee(authTx.Fee)
+	txHash := GetTxHash(txBytes.Hash())
+	fee := buildFee(authTx.Fee)
 	memo := authTx.Memo
 
 	// get tx status, gasUsed, gasPrice and actualFee from tx result
-	status, result, err := QueryTxResult(txBytes.Hash())
+	status, result, err := getTxResult(txBytes.Hash())
 	if err != nil {
 		logger.Error("get txResult err", logger.String("method", methodName), logger.String("err", err.Error()))
 	}
@@ -82,16 +82,16 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Inputs[0].Address.String()
 		docTx.To = msg.Outputs[0].Address.String()
-		docTx.Amount = itypes.ParseCoins(msg.Inputs[0].Coins.String())
-		docTx.Type = constant.TxTypeTransfer
+		docTx.Amount = store.ParseCoins(msg.Inputs[0].Coins.String())
+		docTx.Type = itypes.TxTypeTransfer
 		return docTx
 	case itypes.MsgStakeCreate:
 		msg := msg.(itypes.MsgStakeCreate)
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
-		docTx.Amount = []store.Coin{itypes.ParseCoin(msg.Delegation.String())}
-		docTx.Type = constant.TxTypeStakeCreateValidator
+		docTx.Amount = []store.Coin{store.ParseCoin(msg.Delegation.String())}
+		docTx.Type = itypes.TxTypeStakeCreateValidator
 
 		// struct of createValidator
 		valDes := document.ValDescription{
@@ -117,7 +117,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.From = msg.ValidatorAddr.String()
 		docTx.To = ""
 		docTx.Amount = []store.Coin{}
-		docTx.Type = constant.TxTypeStakeEditValidator
+		docTx.Type = itypes.TxTypeStakeEditValidator
 
 		// struct of editValidator
 		valDes := document.ValDescription{
@@ -136,14 +136,14 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
-		docTx.Amount = []store.Coin{itypes.ParseCoin(msg.Delegation.String())}
-		docTx.Type = constant.TxTypeStakeDelegate
+		docTx.Amount = []store.Coin{store.ParseCoin(msg.Delegation.String())}
+		docTx.Type = itypes.TxTypeStakeDelegate
 
 		return docTx
 	case itypes.MsgStakeBeginUnbonding:
 		msg := msg.(itypes.MsgStakeBeginUnbonding)
 
-		shares := ParseFloat(msg.SharesAmount.String())
+		shares := helper.ParseFloat(msg.SharesAmount.String())
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
 
@@ -151,40 +151,40 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 			Amount: shares,
 		}
 		docTx.Amount = []store.Coin{coin}
-		docTx.Type = constant.TxTypeStakeBeginUnbonding
+		docTx.Type = itypes.TxTypeStakeBeginUnbonding
 		return docTx
 	case itypes.MsgBeginRedelegate:
 		msg := msg.(itypes.MsgBeginRedelegate)
 
-		shares := ParseFloat(msg.SharesAmount.String())
+		shares := helper.ParseFloat(msg.SharesAmount.String())
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorDstAddr.String()
 		coin := store.Coin{
 			Amount: shares,
 		}
 		docTx.Amount = []store.Coin{coin}
-		docTx.Type = constant.TxTypeBeginRedelegate
+		docTx.Type = itypes.TxTypeBeginRedelegate
 		docTx.Msg = itypes.NewBeginRedelegate(msg)
 		return docTx
 	case itypes.MsgUnjail:
 		msg := msg.(itypes.MsgUnjail)
 
 		docTx.From = msg.ValidatorAddr.String()
-		docTx.Type = constant.TxTypeUnjail
+		docTx.Type = itypes.TxTypeUnjail
 
 	case itypes.MsgWithdrawDelegatorReward:
 		msg := msg.(itypes.MsgWithdrawDelegatorReward)
 
 		docTx.From = msg.DelegatorAddr.String()
 		docTx.To = msg.ValidatorAddr.String()
-		docTx.Type = constant.TxTypeWithdrawDelegatorReward
+		docTx.Type = itypes.TxTypeWithdrawDelegatorReward
 		docTx.Msg = itypes.NewWithdrawDelegatorRewardMsg(msg)
 
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
 			if key == itypes.TagDistributionReward {
 				reward := string(tag.Value)
-				docTx.Amount = itypes.ParseCoins(reward)
+				docTx.Amount = store.ParseCoins(reward)
 				break
 			}
 		}
@@ -192,13 +192,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		msg := msg.(itypes.MsgWithdrawDelegatorRewardsAll)
 
 		docTx.From = msg.DelegatorAddr.String()
-		docTx.Type = constant.TxTypeWithdrawDelegatorRewardsAll
+		docTx.Type = itypes.TxTypeWithdrawDelegatorRewardsAll
 		docTx.Msg = itypes.NewWithdrawDelegatorRewardsAllMsg(msg)
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
 			if key == itypes.TagDistributionReward {
 				reward := string(tag.Value)
-				docTx.Amount = itypes.ParseCoins(reward)
+				docTx.Amount = store.ParseCoins(reward)
 				break
 			}
 		}
@@ -206,13 +206,13 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		msg := msg.(itypes.MsgWithdrawValidatorRewardsAll)
 
 		docTx.From = msg.ValidatorAddr.String()
-		docTx.Type = constant.TxTypeWithdrawValidatorRewardsAll
+		docTx.Type = itypes.TxTypeWithdrawValidatorRewardsAll
 		docTx.Msg = itypes.NewWithdrawValidatorRewardsAllMsg(msg)
 		for _, tag := range result.Tags {
 			key := string(tag.Key)
 			if key == itypes.TagDistributionReward {
 				reward := string(tag.Value)
-				docTx.Amount = itypes.ParseCoins(reward)
+				docTx.Amount = store.ParseCoins(reward)
 				break
 			}
 		}
@@ -221,8 +221,8 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Proposer.String()
 		docTx.To = ""
-		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
-		docTx.Type = constant.TxTypeSubmitProposal
+		docTx.Amount = store.ParseCoins(msg.InitialDeposit.String())
+		docTx.Type = itypes.TxTypeSubmitProposal
 		docTx.Msg = itypes.NewSubmitProposal(msg)
 
 		//query proposal_id
@@ -242,8 +242,8 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Proposer.String()
 		docTx.To = ""
-		docTx.Amount = itypes.ParseCoins(msg.InitialDeposit.String())
-		docTx.Type = constant.TxTypeSubmitProposal
+		docTx.Amount = store.ParseCoins(msg.InitialDeposit.String())
+		docTx.Type = itypes.TxTypeSubmitProposal
 		//docTx.Msg = itypes.NewSubmitProposal(msg.MsgSubmitProposal)
 
 		//query proposal_id
@@ -262,8 +262,8 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		msg := msg.(itypes.MsgDeposit)
 
 		docTx.From = msg.Depositor.String()
-		docTx.Amount = itypes.ParseCoins(msg.Amount.String())
-		docTx.Type = constant.TxTypeDeposit
+		docTx.Amount = store.ParseCoins(msg.Amount.String())
+		docTx.Type = itypes.TxTypeDeposit
 		docTx.Msg = itypes.NewDeposit(msg)
 		docTx.ProposalId = msg.ProposalID
 		return docTx
@@ -272,7 +272,7 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 
 		docTx.From = msg.Voter.String()
 		docTx.Amount = []store.Coin{}
-		docTx.Type = constant.TxTypeVote
+		docTx.Type = itypes.TxTypeVote
 		docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
 		return docTx
@@ -293,12 +293,9 @@ func parseTags(result itypes.ResponseDeliverTx) map[string]string {
 	}
 	return tags
 }
-func BuildHex(bytes []byte) string {
-	return strings.ToUpper(hex.EncodeToString(bytes))
-}
 
 // get tx status and log by query txHash
-func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
+func getTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 	var resDeliverTx itypes.ResponseDeliverTx
 	status := document.TxStatusSuccess
 
@@ -315,4 +312,15 @@ func QueryTxResult(txHash []byte) (string, itypes.ResponseDeliverTx, error) {
 	}
 
 	return status, result, nil
+}
+
+func GetTxHash(bytes []byte) string {
+	return strings.ToUpper(hex.EncodeToString(bytes))
+}
+
+func buildFee(fee itypes.StdFee) store.Fee {
+	return store.Fee{
+		Amount: store.ParseCoins(fee.Amount.String()),
+		Gas:    int64(fee.Gas),
+	}
 }

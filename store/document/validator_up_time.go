@@ -31,7 +31,7 @@ func (d ValidatorUpTime) RemoveAll() error {
 	query := bson.M{}
 	remove := func(c *mgo.Collection) error {
 		changeInfo, err := c.RemoveAll(query)
-		logger.Info("remove all validator uptime data", logger.Any("changeInfo", changeInfo))
+		logger.Debug("remove all validator uptime data", logger.Any("changeInfo", changeInfo))
 		return err
 	}
 	return store.ExecCollection(d.Name(), remove)

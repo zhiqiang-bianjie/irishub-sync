@@ -1,7 +1,7 @@
 // init client from clientPool.
 // client is httpClient of tendermint
 
-package helper
+package rpc
 
 import (
 	"encoding/hex"

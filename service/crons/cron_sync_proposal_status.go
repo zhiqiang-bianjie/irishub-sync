@@ -1,19 +1,19 @@
-package task
+package crons
 
 import (
 	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/util/constant"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/types"
 )
 
 func syncProposalStatus() {
-	var status = []string{constant.StatusDepositPeriod, constant.StatusVotingPeriod}
+	var status = []string{types.StatusDepositPeriod, types.StatusVotingPeriod}
 	if proposals, err := document.QueryByStatus(status); err == nil {
 		for _, proposal := range proposals {
-			propo, err := helper.GetProposal(proposal.ProposalId)
+			propo, err := rpc.GetProposal(proposal.ProposalId)
 			if err != nil {
 				store.Delete(proposal)
 				return
@@ -29,8 +29,7 @@ func syncProposalStatus() {
 
 func MakeSyncProposalStatusTask() Task {
 	return NewLockTaskFromEnv(conf.SyncProposalStatus, "sync_proposal_status_lock", func() {
-		logger.Debug("========================task's trigger [SyncProposalStatus] begin===================")
+		logger.Info("start cron", logger.String("cronNm", "syncProposalStatus"))
 		syncProposalStatus()
-		logger.Debug("========================task's trigger [SyncProposalStatus] end===================")
 	})
 }

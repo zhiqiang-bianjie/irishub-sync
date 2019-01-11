@@ -2,20 +2,20 @@ package handler
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/constant"
 	"github.com/irisnet/irishub-sync/util/helper"
 	"sync"
 )
 
 // init delegator for genesis validator
 func InitDelegator() {
-	validators := helper.GetValidators()
+	validators := rpc.GetValidators()
 	for _, validator := range validators {
 		valAddr := validator.OperatorAddr.String()
-		valAccAddr := helper.ValAddrToAccAddr(valAddr)
+		valAccAddr := rpc.ValAddrToAccAddr(valAddr)
 		modifyDelegator(valAccAddr, valAddr)
 	}
 }
@@ -47,16 +47,16 @@ func SaveOrUpdateDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 	logger.Debug("Start", logger.String("method", "saveDelegator"))
 
 	switch docTx.Type {
-	case constant.TxTypeStakeCreateValidator:
+	case types.TxTypeStakeCreateValidator:
 		modifyDelegator(docTx.From, docTx.From)
 		break
-	case constant.TxTypeStakeEditValidator:
+	case types.TxTypeStakeEditValidator:
 		updateValidator(docTx.From)
 		break
-	case constant.TxTypeStakeDelegate, constant.TxTypeStakeBeginUnbonding:
+	case types.TxTypeStakeDelegate, types.TxTypeStakeBeginUnbonding:
 		modifyDelegator(docTx.From, docTx.To)
 		break
-	case constant.TxTypeBeginRedelegate:
+	case types.TxTypeBeginRedelegate:
 		delAddress := docTx.From
 		msg := docTx.Msg.(types.BeginRedelegate)
 		valSrcAddr := msg.ValidatorSrcAddr
@@ -97,15 +97,15 @@ func modifyDelegator(delAddress, valAddress string) {
 	if delegator.BondedHeight < 0 &&
 		delegator.UnbondingDelegation.CreationHeight < 0 {
 		store.Delete(delegator)
-		logger.Info("delete delegator", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
+		logger.Debug("delete delegator", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
 	} else {
 		store.SaveOrUpdate(delegator)
-		logger.Info("saveOrUpdate delegator", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
+		logger.Debug("saveOrUpdate delegator", logger.String("delAddress", delAddress), logger.String("valAddress", valAddress))
 	}
 }
 
 func BuildDelegation(delAddress, valAddress string) (res tempDelegation) {
-	d := helper.GetDelegation(delAddress, valAddress)
+	d := rpc.GetDelegation(delAddress, valAddress)
 
 	if d.DelegatorAddr == nil {
 		// represents delegation is nil
@@ -124,7 +124,7 @@ func BuildDelegation(delAddress, valAddress string) (res tempDelegation) {
 }
 
 func BuildUnbondingDelegation(delAddress, valAddress string) (res document.UnbondingDelegation) {
-	ud := helper.GetUnbondingDelegation(delAddress, valAddress)
+	ud := rpc.GetUnbondingDelegation(delAddress, valAddress)
 
 	// doesn't have unbonding delegation
 	if ud.DelegatorAddr == nil {
@@ -133,8 +133,8 @@ func BuildUnbondingDelegation(delAddress, valAddress string) (res document.Unbon
 		return res
 	}
 
-	initBalance := types.ParseCoins(types.SdkCoins{ud.InitialBalance}.String())
-	balance := types.ParseCoins(types.SdkCoins{ud.Balance}.String())
+	initBalance := store.ParseCoins(types.SdkCoins{ud.InitialBalance}.String())
+	balance := store.ParseCoins(types.SdkCoins{ud.Balance}.String())
 	res = document.UnbondingDelegation{
 		CreationHeight: ud.CreationHeight,
 		MinTime:        ud.MinTime.Unix(),

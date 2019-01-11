@@ -1,4 +1,4 @@
-package task
+package crons
 
 import (
 	conf "github.com/irisnet/irishub-sync/conf/server"

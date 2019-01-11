@@ -1,16 +1,15 @@
 // This package is used for Query balance of account
 
-package helper
+package rpc
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 // query account balance from sdk store
-func QueryAccountBalance(address string) store.Coins {
+func GetBalance(address string) store.Coins {
 	cdc := types.GetCodec()
 
 	addr, err := types.AccAddressFromBech32(address)
@@ -20,7 +19,7 @@ func QueryAccountBalance(address string) store.Coins {
 	}
 
 	res, err := Query(types.AddressStoreKey(addr), "acc",
-		constant.StoreDefaultEndPath)
+		types.StoreDefaultEndPath)
 
 	if err != nil {
 		logger.Error("Query balance from tendermint failed", logger.Any("err", err))
@@ -39,7 +38,7 @@ func QueryAccountBalance(address string) store.Coins {
 		return nil
 	}
 
-	return types.ParseCoins(account.GetCoins().String())
+	return store.ParseCoins(account.GetCoins().String())
 }
 
 func ValAddrToAccAddr(address string) (accAddr string) {

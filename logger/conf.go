@@ -1,9 +1,16 @@
 package logger
 
 import (
-	"github.com/irisnet/irishub-sync/util/constant"
 	"os"
 	"strconv"
+)
+
+const (
+	EnvLogFileName    = "LOG_FILE_NAME"
+	EnvLogFileMaxSize = "LOG_FILE_MAX_SIZE"
+	EnvLogFileMaxAge  = "LOG_FILE_MAX_AGE"
+	EnvLogCompress    = "LOG_COMPRESS"
+	EnableAtomicLevel = "ENABLE_ATOMIC_LEVEL"
 )
 
 type Config struct {
@@ -25,33 +32,33 @@ var (
 )
 
 func init() {
-	fileName, found := os.LookupEnv(constant.EnvLogFileName)
+	fileName, found := os.LookupEnv(EnvLogFileName)
 	if found {
 		conf.Filename = fileName
 	}
 
-	maxSize, found := os.LookupEnv(constant.EnvLogFileMaxSize)
+	maxSize, found := os.LookupEnv(EnvLogFileMaxSize)
 	if found {
 		if size, err := strconv.Atoi(maxSize); err == nil {
 			conf.MaxSize = size
 		}
 	}
 
-	maxAge, found := os.LookupEnv(constant.EnvLogFileMaxAge)
+	maxAge, found := os.LookupEnv(EnvLogFileMaxAge)
 	if found {
 		if age, err := strconv.Atoi(maxAge); err == nil {
 			conf.MaxAge = age
 		}
 	}
 
-	compress, found := os.LookupEnv(constant.EnvLogCompress)
+	compress, found := os.LookupEnv(EnvLogCompress)
 	if found {
 		if compre, err := strconv.ParseBool(compress); err == nil {
 			conf.Compress = compre
 		}
 	}
 
-	enableAtomicLevel, found := os.LookupEnv(constant.EnableAtomicLevel)
+	enableAtomicLevel, found := os.LookupEnv(EnableAtomicLevel)
 	if found {
 		if atomicLevel, err := strconv.ParseBool(enableAtomicLevel); err == nil {
 			conf.EnableAtomicLevel = atomicLevel

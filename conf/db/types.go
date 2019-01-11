@@ -2,12 +2,12 @@ package db
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/types"
 	"os"
 )
 
 var (
-	Addrs    = "192.168.150.7:30000"
+	Addrs    = "127.0.0.1:27017"
 	User     = "iris"
 	Passwd   = "irispassword"
 	Database = "sync-iris"
@@ -15,27 +15,27 @@ var (
 
 // get value of env var
 func init() {
-	addrs, found := os.LookupEnv(constant.EnvNameDbAddr)
+	addrs, found := os.LookupEnv(types.EnvNameDbAddr)
 	if found {
 		Addrs = addrs
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbAddr, Addrs))
+	logger.Info("Env Value", logger.String(types.EnvNameDbAddr, Addrs))
 
-	user, found := os.LookupEnv(constant.EnvNameDbUser)
+	user, found := os.LookupEnv(types.EnvNameDbUser)
 	if found {
 		User = user
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbUser, User))
+	logger.Info("Env Value", logger.String(types.EnvNameDbUser, User))
 
-	passwd, found := os.LookupEnv(constant.EnvNameDbPassWd)
+	passwd, found := os.LookupEnv(types.EnvNameDbPassWd)
 	if found {
 		Passwd = passwd
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbPassWd, Passwd))
+	logger.Info("Env Value", logger.String(types.EnvNameDbPassWd, Passwd))
 
-	database, found := os.LookupEnv(constant.EnvNameDbDataBase)
+	database, found := os.LookupEnv(types.EnvNameDbDataBase)
 	if found {
 		Database = database
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameDbDataBase, Database))
+	logger.Info("Env Value", logger.String(types.EnvNameDbDataBase, Database))
 }

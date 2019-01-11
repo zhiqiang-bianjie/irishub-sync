@@ -2,17 +2,15 @@ package types
 
 import (
 	"encoding/json"
-	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 type SubmitProposal struct {
-	Title          string      `json:"title"`          //  Title of the proposal
-	Description    string      `json:"description"`    //  Description of the proposal
-	Proposer       string      `json:"proposer"`       //  Address of the proposer
-	InitialDeposit store.Coins `json:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
-	ProposalType   string      `json:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
-	Params         Params      `json:"params"`
+	Title          string `json:"title"`          //  Title of the proposal
+	Description    string `json:"description"`    //  Description of the proposal
+	Proposer       string `json:"proposer"`       //  Address of the proposer
+	InitialDeposit Coins  `json:"initialDeposit"` //  Initial deposit paid by sender. Must be strictly positive.
+	ProposalType   string `json:"proposalType"`   //  Initial deposit paid by sender. Must be strictly positive.
+	Params         Params `json:"params"`
 }
 
 type Param struct {
@@ -43,7 +41,7 @@ func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 }
 
 func (s SubmitProposal) Type() string {
-	return constant.TxTypeSubmitProposal
+	return TxTypeSubmitProposal
 }
 
 func (s SubmitProposal) String() string {
@@ -71,7 +69,7 @@ func NewVote(v MsgVote) Vote {
 }
 
 func (s Vote) Type() string {
-	return constant.TxTypeVote
+	return TxTypeVote
 }
 
 func (s Vote) String() string {
@@ -85,9 +83,9 @@ func UnmarshalVote(str string) (vote Vote) {
 }
 
 type Deposit struct {
-	ProposalID uint64      `json:"proposal_id"` // ID of the proposal
-	Depositer  string      `json:"depositer"`   // Address of the depositer
-	Amount     store.Coins `json:"amount"`      // Coins to add to the proposal's deposit
+	ProposalID uint64 `json:"proposal_id"` // ID of the proposal
+	Depositer  string `json:"depositer"`   // Address of the depositer
+	Amount     Coins  `json:"amount"`      // Coins to add to the proposal's deposit
 }
 
 func NewDeposit(deposit MsgDeposit) Deposit {
@@ -99,7 +97,7 @@ func NewDeposit(deposit MsgDeposit) Deposit {
 }
 
 func (s Deposit) Type() string {
-	return constant.TxTypeDeposit
+	return TxTypeDeposit
 }
 
 func (s Deposit) String() string {

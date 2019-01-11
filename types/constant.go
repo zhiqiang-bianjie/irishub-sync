@@ -1,6 +1,4 @@
-// package for define constants
-
-package constant
+package types
 
 const (
 	TxTypeTransfer                    = "Transfer"

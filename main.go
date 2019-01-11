@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/service"
 	"github.com/irisnet/irishub-sync/store"
-	"github.com/irisnet/irishub-sync/util/helper"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,7 +17,7 @@ func main() {
 	defer func() {
 		logger.Info("#########################System Exit##########################")
 		engine.Stop()
-		helper.ClosePool()
+		rpc.Close()
 		store.Stop()
 		logger.Sync()
 		if err := recover(); err != nil {

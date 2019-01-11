@@ -1,4 +1,4 @@
-package task
+package crons
 
 import (
 	"github.com/irisnet/irishub-sync/conf/server"
@@ -10,9 +10,8 @@ import (
 
 func MakeUpdateDelegatorTask() Task {
 	return NewLockTaskFromEnv(server.CronUpdateDelegator, "save_update_delegator_lock", func() {
-		logger.Debug("========================task's trigger [MakeUpdateDelegatorTask] begin===================")
+		logger.Info("start cron", logger.String("cronNm", "updateDelegator"))
 		updateDelegator()
-		logger.Debug("========================task's trigger [MakeUpdateDelegatorTask] end===================")
 	})
 }
 
@@ -30,10 +29,10 @@ func updateDelegator() {
 		if d.BondedHeight < 0 &&
 			d.UnbondingDelegation.CreationHeight < 0 {
 			store.Delete(d)
-			logger.Info("delete delegator", logger.String("delAddress", d.Address), logger.String("valAddress", d.ValidatorAddr))
+			logger.Debug("delete delegator", logger.String("delAddress", d.Address), logger.String("valAddress", d.ValidatorAddr))
 		} else {
 			store.Update(d)
-			logger.Info("Update delegator", logger.String("delAddress", d.Address), logger.String("valAddress", d.ValidatorAddr))
+			logger.Debug("Update delegator", logger.String("delAddress", d.Address), logger.String("valAddress", d.ValidatorAddr))
 		}
 	}
 }

@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/service/crons"
 	"github.com/irisnet/irishub-sync/service/handler"
-	"github.com/irisnet/irishub-sync/service/task"
 	"github.com/robfig/cron"
 	"time"
 )
@@ -15,38 +15,43 @@ var (
 func init() {
 	engine = &SyncEngine{
 		cron:      cron.New(),
-		tasks:     []task.Task{},
+		tasks:     []crons.Task{},
 		initFuncs: []func(){},
 	}
 
-	engine.AddTask(task.MakeCalculateAndSaveValidatorUpTimeTask())
-	engine.AddTask(task.MakeCalculateTxGasAndGasPriceTask())
-	engine.AddTask(task.MakeSyncProposalStatusTask())
-	engine.AddTask(task.MakeValidatorHistoryTask())
-	engine.AddTask(task.MakeUpdateDelegatorTask())
+	engine.AddTask(crons.MakeCalculateAndSaveValidatorUpTimeTask())
+	engine.AddTask(crons.MakeCalculateTxGasAndGasPriceTask())
+	engine.AddTask(crons.MakeSyncProposalStatusTask())
+	engine.AddTask(crons.MakeValidatorHistoryTask())
+	engine.AddTask(crons.MakeUpdateDelegatorTask())
 
 	// init delegator for genesis validator
 	engine.initFuncs = append(engine.initFuncs, handler.InitDelegator)
 }
 
 type SyncEngine struct {
-	cron      *cron.Cron  //cron
-	tasks     []task.Task // my timer task
-	initFuncs []func()    // module init fun
+	cron      *cron.Cron   //cron
+	tasks     []crons.Task // my timer task
+	initFuncs []func()     // module init fun
 }
 
-func (engine *SyncEngine) AddTask(task task.Task) {
+func (engine *SyncEngine) AddTask(task crons.Task) {
 	engine.tasks = append(engine.tasks, task)
 	engine.cron.AddFunc(task.GetCron(), task.GetCommand())
 }
 
-func (engine *SyncEngine) Start() {
+func (engine *SyncEngine) init() {
 	// init module info
 	for _, init := range engine.initFuncs {
 		init()
 	}
-	go task.StartCreateTask()
-	go task.StartExecuteTask()
+}
+
+func (engine *SyncEngine) Start() {
+	engine.init()
+
+	go startCreateTask()
+	go startExecuteTask()
 
 	// cron task should start after fast sync finished
 	fastSyncChan := make(chan bool, 1)
@@ -54,7 +59,7 @@ func (engine *SyncEngine) Start() {
 	go func() {
 		for {
 			<-ticker.C
-			flag, err := task.AssertFastSyncFinished()
+			flag, err := assertFastSyncFinished()
 			if err != nil {
 				logger.Error("assert fast sync finished failed", logger.String("err", err.Error()))
 			}

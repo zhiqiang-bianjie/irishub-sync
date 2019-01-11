@@ -1,18 +1,20 @@
 package handler
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"github.com/irisnet/irishub-sync/logger"
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"strings"
 )
 
 func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.Validator) document.Block {
 	cdc := types.GetCodec()
 
 	hexFunc := func(bytes []byte) string {
-		return helper.BuildHex(bytes)
+		return strings.ToUpper(hex.EncodeToString(bytes))
 	}
 
 	docBlock := document.Block{
@@ -111,7 +113,7 @@ func ParseBlock(meta *types.BlockMeta, block *types.Block, validators []*types.V
 }
 
 func parseBlockResult(height int64) (res document.BlockResults) {
-	client := helper.GetClient()
+	client := rpc.GetClient()
 	defer client.Release()
 
 	result, err := client.BlockResults(&height)

@@ -1,16 +1,16 @@
 package server
 
 import (
+	"github.com/irisnet/irishub-sync/types"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 var (
-	BlockChainMonitorUrl = []string{"tcp://192.168.150.7:30657"}
+	BlockChainMonitorUrl = []string{"tcp://127.0.0.1:26657"}
 	ChainId              = "rainbow-dev"
 
 	WorkerNumCreateTask  = 2
@@ -53,98 +53,98 @@ type Bech32AddrPrefix struct {
 
 // get value of env var
 func init() {
-	nodeUrl, found := os.LookupEnv(constant.EnvNameSerNetworkFullNode)
+	nodeUrl, found := os.LookupEnv(types.EnvNameSerNetworkFullNode)
 	if found {
 		BlockChainMonitorUrl = strings.Split(nodeUrl, ",")
 	}
 
-	logger.Info("Env Value", logger.Any(constant.EnvNameSerNetworkFullNode, BlockChainMonitorUrl))
+	logger.Info("Env Value", logger.Any(types.EnvNameSerNetworkFullNode, BlockChainMonitorUrl))
 
-	chainId, found := os.LookupEnv(constant.EnvNameSerNetworkChainId)
+	chainId, found := os.LookupEnv(types.EnvNameSerNetworkChainId)
 	if found {
 		ChainId = chainId
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameSerNetworkChainId, ChainId))
+	logger.Info("Env Value", logger.String(types.EnvNameSerNetworkChainId, ChainId))
 
-	consulAddr, found := os.LookupEnv(constant.EnvNameConsulAddr)
+	consulAddr, found := os.LookupEnv(types.EnvNameConsulAddr)
 	if found {
 		ConsulAddr = consulAddr
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameConsulAddr, ConsulAddr))
+	logger.Info("Env Value", logger.String(types.EnvNameConsulAddr, ConsulAddr))
 
-	withDLock, found := os.LookupEnv(constant.EnvNameSyncWithDLock)
+	withDLock, found := os.LookupEnv(types.EnvNameSyncWithDLock)
 	if found {
 		flag, err := strconv.ParseBool(withDLock)
 		if err != nil {
-			logger.Fatal("Env Value", logger.String(constant.EnvNameSyncWithDLock, withDLock))
+			logger.Fatal("Env Value", logger.String(types.EnvNameSyncWithDLock, withDLock))
 		}
 		SyncWithDLock = flag
 	}
-	logger.Info("Env Value", logger.Bool(constant.EnvNameSyncWithDLock, SyncWithDLock))
+	logger.Info("Env Value", logger.Bool(types.EnvNameSyncWithDLock, SyncWithDLock))
 
-	cronSaveValidatorHistory, found := os.LookupEnv(constant.EnvNameCronSaveValidatorHistory)
+	cronSaveValidatorHistory, found := os.LookupEnv(types.EnvNameCronSaveValidatorHistory)
 	if found {
 		CronSaveValidatorHistory = cronSaveValidatorHistory
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
+	logger.Info("Env Value", logger.String(types.EnvNameCronSaveValidatorHistory, cronSaveValidatorHistory))
 
-	workerNumCreateTask, found := os.LookupEnv(constant.EnvNameWorkerNumCreateTask)
+	workerNumCreateTask, found := os.LookupEnv(types.EnvNameWorkerNumCreateTask)
 	if found {
 		var err error
 		WorkerNumCreateTask, err = strconv.Atoi(workerNumCreateTask)
 		if err != nil {
-			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumCreateTask, workerNumCreateTask))
+			logger.Fatal("Can't convert str to int", logger.String(types.EnvNameWorkerNumCreateTask, workerNumCreateTask))
 		}
 	}
-	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumCreateTask, WorkerNumCreateTask))
+	logger.Info("Env Value", logger.Int(types.EnvNameWorkerNumCreateTask, WorkerNumCreateTask))
 
-	workerNumExecuteTask, found := os.LookupEnv(constant.EnvNameWorkerNumExecuteTask)
+	workerNumExecuteTask, found := os.LookupEnv(types.EnvNameWorkerNumExecuteTask)
 	if found {
 		var err error
 		WorkerNumExecuteTask, err = strconv.Atoi(workerNumExecuteTask)
 		if err != nil {
-			logger.Fatal("Can't convert str to int", logger.String(constant.EnvNameWorkerNumExecuteTask, workerNumCreateTask))
+			logger.Fatal("Can't convert str to int", logger.String(types.EnvNameWorkerNumExecuteTask, workerNumCreateTask))
 		}
 	}
-	logger.Info("Env Value", logger.Int(constant.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
+	logger.Info("Env Value", logger.Int(types.EnvNameWorkerNumExecuteTask, WorkerNumExecuteTask))
 
 	loadBe32Prefix()
 }
 
 func loadBe32Prefix() {
-	prefixAccAddr, found := os.LookupEnv(constant.EnvNamePrefixAccAddr)
+	prefixAccAddr, found := os.LookupEnv(types.EnvNamePrefixAccAddr)
 	if found {
 		Bech32.PrefixAccAddr = prefixAccAddr
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixAccAddr, Bech32.PrefixAccAddr))
+	logger.Info("Env Value", logger.String(types.EnvNamePrefixAccAddr, Bech32.PrefixAccAddr))
 
-	prefixAccPub, found := os.LookupEnv(constant.EnvNamePrefixAccPub)
+	prefixAccPub, found := os.LookupEnv(types.EnvNamePrefixAccPub)
 	if found {
 		Bech32.PrefixAccPub = prefixAccPub
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixAccPub, Bech32.PrefixAccPub))
+	logger.Info("Env Value", logger.String(types.EnvNamePrefixAccPub, Bech32.PrefixAccPub))
 
-	prefixValAddr, found := os.LookupEnv(constant.EnvNamePrefixValAddr)
+	prefixValAddr, found := os.LookupEnv(types.EnvNamePrefixValAddr)
 	if found {
 		Bech32.PrefixValAddr = prefixValAddr
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixValAddr, Bech32.PrefixValAddr))
+	logger.Info("Env Value", logger.String(types.EnvNamePrefixValAddr, Bech32.PrefixValAddr))
 
-	prefixValPub, found := os.LookupEnv(constant.EnvNamePrefixValPub)
+	prefixValPub, found := os.LookupEnv(types.EnvNamePrefixValPub)
 	if found {
 		Bech32.PrefixValPub = prefixValPub
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixValPub, Bech32.PrefixValPub))
+	logger.Info("Env Value", logger.String(types.EnvNamePrefixValPub, Bech32.PrefixValPub))
 
-	prefixConsAddr, found := os.LookupEnv(constant.EnvNamePrefixConsAddr)
+	prefixConsAddr, found := os.LookupEnv(types.EnvNamePrefixConsAddr)
 	if found {
 		Bech32.PrefixConsAddr = prefixConsAddr
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixConsAddr, Bech32.PrefixConsAddr))
+	logger.Info("Env Value", logger.String(types.EnvNamePrefixConsAddr, Bech32.PrefixConsAddr))
 
-	prefixConsPub, found := os.LookupEnv(constant.EnvNamePrefixConsPub)
+	prefixConsPub, found := os.LookupEnv(types.EnvNamePrefixConsPub)
 	if found {
 		Bech32.PrefixConsPub = prefixConsPub
 	}
-	logger.Info("Env Value", logger.String(constant.EnvNamePrefixConsPub, Bech32.PrefixConsPub))
+	logger.Info("Env Value", logger.String(types.EnvNamePrefixConsPub, Bech32.PrefixConsPub))
 }

@@ -1,4 +1,4 @@
-package helper
+package rpc
 
 import (
 	"context"
@@ -44,8 +44,6 @@ func init() {
 	pool = &NodePool{
 		gcp.NewObjectPool(ctx, &factory, config),
 	}
-	//自动搜索可用节点
-	//factory.StartCrawlPeers()
 }
 
 type EndPoint struct {
@@ -62,7 +60,7 @@ type PoolFactory struct {
 	cron     *cron.Cron
 }
 
-func ClosePool() {
+func Close() {
 	logger.Info("release resource nodePool")
 	pool.Close(ctx)
 	factory.cron.Stop()
@@ -137,44 +135,4 @@ func (f *PoolFactory) GetEndPoint() EndPoint {
 		logger.Error("Can't get selected end point", logger.String("selectedKey", selectedKey))
 	}
 	return EndPoint{}
-}
-
-func (f *PoolFactory) heartBeat() {
-	go func() {
-		f.cron.AddFunc("0 0/1 * * * *", func() {
-			//logger.Info("PoolFactory StartCrawlPeers peer", logger.Any("peers", f.peersMap))
-			//client := GetClient()
-			//
-			//defer func() {
-			//	client.Release()
-			//	if err := recover(); err != nil {
-			//		logger.Info("PoolFactory StartCrawlPeers error", logger.Any("err", err))
-			//	}
-			//}()
-			//
-			//addrs := client.GetNodeAddress()
-			//for _, addr := range addrs {
-			//	key := generateId(addr)
-			//	if _, ok := f.peersMap[key]; !ok {
-			//		f.peersMap[key] = EndPoint{
-			//			Address:   addr,
-			//			Available: true,
-			//		}
-			//	}
-			//}
-			//
-			////检测节点是否上线
-			//for key := range f.peersMap {
-			//	endPoint := f.peersMap[key]
-			//	if !endPoint.Available {
-			//		node := newClient(endPoint.Address)
-			//		if node.HeartBeat() == nil {
-			//			endPoint.Available = true
-			//			f.peersMap[key] = endPoint
-			//		}
-			//	}
-			//}
-		})
-		f.cron.Start()
-	}()
 }

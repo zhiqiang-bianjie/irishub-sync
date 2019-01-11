@@ -64,7 +64,7 @@ func (d Candidate) Query(query bson.M, sorts ...string) (
 func (d Candidate) Remove(query bson.M) error {
 	remove := func(c *mgo.Collection) error {
 		changeInfo, err := c.RemoveAll(query)
-		logger.Info("Remove candidates", logger.Any("changeInfo", changeInfo))
+		logger.Debug("Remove candidates", logger.Any("changeInfo", changeInfo))
 		return err
 	}
 	return store.ExecCollection(d.Name(), remove)

@@ -1,16 +1,16 @@
-package task
+package crons
 
 import (
 	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/types"
 )
 
 func calculateTxGasAndGasPrice() {
 	var (
 		methodName    = "CalculateTxGasAndGasPrice"
-		intervalTxNum = constant.IntervalTxNumCalculateTxGas
+		intervalTxNum = types.IntervalTxNumCalculateTxGas
 		txModel       document.CommonTx
 		txGasModel    document.TxGas
 		txGases       []document.TxGas
@@ -18,16 +18,16 @@ func calculateTxGasAndGasPrice() {
 	logger.Info("Start", logger.String("method", methodName))
 
 	txTypes := []string{
-		constant.TxTypeTransfer,
-		constant.TxTypeStakeCreateValidator,
-		constant.TxTypeStakeEditValidator,
-		constant.TxTypeStakeDelegate,
-		constant.TxTypeStakeBeginUnbonding,
-		constant.TxTypeBeginRedelegate,
-		constant.TxTypeSetWithdrawAddress,
-		constant.TxTypeWithdrawDelegatorReward,
-		constant.TxTypeWithdrawDelegatorRewardsAll,
-		constant.TxTypeWithdrawValidatorRewardsAll,
+		types.TxTypeTransfer,
+		types.TxTypeStakeCreateValidator,
+		types.TxTypeStakeEditValidator,
+		types.TxTypeStakeDelegate,
+		types.TxTypeStakeBeginUnbonding,
+		types.TxTypeBeginRedelegate,
+		types.TxTypeSetWithdrawAddress,
+		types.TxTypeWithdrawDelegatorReward,
+		types.TxTypeWithdrawDelegatorRewardsAll,
+		types.TxTypeWithdrawValidatorRewardsAll,
 	}
 
 	for _, v := range txTypes {
@@ -118,8 +118,7 @@ func buildTxGas(txs []document.CommonTx) document.TxGas {
 
 func MakeCalculateTxGasAndGasPriceTask() Task {
 	return NewLockTaskFromEnv(conf.CronCalculateTxGas, "calculate_tx_gas_and_gas_price_lock", func() {
-		logger.Debug("========================task's trigger [CalculateTxGasAndGasPrice] begin===================")
+		logger.Info("start cron", logger.String("cronNm", "calculateTxGasAndGasPrice"))
 		calculateTxGasAndGasPrice()
-		logger.Debug("========================task's trigger [CalculateTxGasAndGasPrice] end===================")
 	})
 }

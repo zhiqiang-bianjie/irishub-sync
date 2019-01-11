@@ -1,29 +1,28 @@
 package handler
 
 import (
+	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/constant"
-	"github.com/irisnet/irishub-sync/util/helper"
 )
 
 func handleProposal(docTx document.CommonTx) {
 	switch docTx.Type {
-	case constant.TxTypeSubmitProposal:
-		if proposal, err := helper.GetProposal(docTx.ProposalId); err == nil {
+	case types.TxTypeSubmitProposal:
+		if proposal, err := rpc.GetProposal(docTx.ProposalId); err == nil {
 			store.SaveOrUpdate(proposal)
 		}
-	case constant.TxTypeDeposit:
+	case types.TxTypeDeposit:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			propo, _ := helper.GetProposal(docTx.ProposalId)
+			propo, _ := rpc.GetProposal(docTx.ProposalId)
 			proposal.TotalDeposit = propo.TotalDeposit
 			proposal.Status = propo.Status
 			proposal.VotingStartTime = propo.VotingStartTime
 			proposal.VotingEndTime = propo.VotingEndTime
 			store.SaveOrUpdate(proposal)
 		}
-	case constant.TxTypeVote:
+	case types.TxTypeVote:
 		//失败的投票不计入统计
 		if docTx.Status == document.TxStatusFail {
 			return

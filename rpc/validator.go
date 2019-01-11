@@ -1,9 +1,8 @@
-package helper
+package rpc
 
 import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/constant"
 )
 
 func GetValidators() (validators []types.StakeValidator) {
@@ -11,7 +10,7 @@ func GetValidators() (validators []types.StakeValidator) {
 	cdc := types.GetCodec()
 	var kvs []types.KVPair
 
-	resRaw, err := Query(keys, constant.StoreNameStake, "subspace")
+	resRaw, err := Query(keys, types.StoreNameStake, "subspace")
 
 	if err != nil || len(resRaw) == 0 {
 		logger.Error("GetValidators Failed ", logger.String("err", err.Error()))
@@ -50,7 +49,7 @@ func GetValidator(valAddr string) (types.StakeValidator, error) {
 
 	validatorAddr, err = types.ValAddressFromBech32(valAddr)
 
-	resRaw, err := Query(types.GetValidatorKey(validatorAddr), constant.StoreNameStake, constant.StoreDefaultEndPath) //TODO
+	resRaw, err := Query(types.GetValidatorKey(validatorAddr), types.StoreNameStake, types.StoreDefaultEndPath) //TODO
 	if err != nil || resRaw == nil {
 		return res, err
 	}
@@ -73,7 +72,7 @@ func GetDelegation(delAddr, valAddr string) (res types.Delegation) {
 
 	key := types.GetDelegationKey(delegatorAddr, validatorAddr)
 
-	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
+	resRaw, err := Query(key, types.StoreNameStake, types.StoreDefaultEndPath)
 
 	if err != nil {
 		logger.Error("helper.GetDelegation err ", logger.String("delAddr", delAddr))
@@ -92,7 +91,7 @@ func GetDelegations(delAddr string) (delegations []types.Delegation) {
 
 	delegatorAddr, err := types.AccAddressFromBech32(delAddr)
 	key := types.GetDelegationsKey(delegatorAddr)
-	resKVs, err := QuerySubspace(key, constant.StoreNameStake)
+	resKVs, err := QuerySubspace(key, types.StoreNameStake)
 
 	if err != nil {
 		logger.Error("helper.GetDelegations err ", logger.String("delAddr", delAddr))
@@ -120,7 +119,7 @@ func GetUnbondingDelegation(delAddr, valAddr string) (res types.UnbondingDelegat
 
 	key := types.GetUBDKey(delegatorAddr, validatorAddr)
 
-	resRaw, err := Query(key, constant.StoreNameStake, constant.StoreDefaultEndPath)
+	resRaw, err := Query(key, types.StoreNameStake, types.StoreDefaultEndPath)
 
 	if err != nil {
 		logger.Error("helper.GetDelegations err ", logger.String("delAddr", delAddr))
@@ -142,7 +141,7 @@ func GetUnbondingDelegations(delAddr string) (ubds []types.UnbondingDelegation) 
 	cdc := types.GetCodec()
 	key := types.GetUBDsKey(delegatorAddr)
 
-	resKVs, err := QuerySubspace(key, constant.StoreNameStake)
+	resKVs, err := QuerySubspace(key, types.StoreNameStake)
 	if err != nil {
 		logger.Error("helper.GetDelegations err ", logger.String("delAddr", delAddr))
 		return

@@ -1,9 +1,6 @@
 package types
 
 import (
-	"fmt"
-	"github.com/irisnet/irishub-sync/logger"
-	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub/app"
 	"github.com/irisnet/irishub/client/utils"
 	"github.com/irisnet/irishub/codec"
@@ -23,9 +20,6 @@ import (
 	rpcclient "github.com/tendermint/tendermint/rpc/client"
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	tm "github.com/tendermint/tendermint/types"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
 type (
@@ -55,6 +49,7 @@ type (
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
 	StdTx      = auth.StdTx
+	StdFee     = auth.StdFee
 	SdkCoins   = types.Coins
 	KVPair     = types.KVPair
 	AccAddress = types.AccAddress
@@ -128,55 +123,4 @@ func init() {
 
 func GetCodec() *codec.Codec {
 	return cdc
-}
-
-//
-func ParseCoins(coinsStr string) (coins store.Coins) {
-	coinsStr = strings.TrimSpace(coinsStr)
-	if len(coinsStr) == 0 {
-		return
-	}
-
-	coinStrs := strings.Split(coinsStr, ",")
-	for _, coinStr := range coinStrs {
-		coin := ParseCoin(coinStr)
-		coins = append(coins, coin)
-	}
-	return coins
-}
-
-func ParseCoin(coinStr string) (coin store.Coin) {
-	var (
-		reDnm  = `[A-Za-z\-]{2,15}`
-		reAmt  = `[0-9]+[.]?[0-9]*`
-		reSpc  = `[[:space:]]*`
-		reCoin = regexp.MustCompile(fmt.Sprintf(`^(%s)%s(%s)$`, reAmt, reSpc, reDnm))
-	)
-
-	coinStr = strings.TrimSpace(coinStr)
-
-	matches := reCoin.FindStringSubmatch(coinStr)
-	if matches == nil {
-		logger.Error("invalid coin expression", logger.Any("coin", coinStr))
-		return coin
-	}
-	denom, amount := matches[2], matches[1]
-
-	amt, err := strconv.ParseFloat(amount, 64)
-	if err != nil {
-		logger.Error("Convert str to int failed", logger.Any("amount", amount))
-		return coin
-	}
-
-	return store.Coin{
-		Denom:  denom,
-		Amount: amt,
-	}
-}
-
-func BuildFee(fee auth.StdFee) store.Fee {
-	return store.Fee{
-		Amount: ParseCoins(fee.Amount.String()),
-		Gas:    int64(fee.Gas),
-	}
 }

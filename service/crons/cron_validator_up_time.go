@@ -1,10 +1,10 @@
-package task
+package crons
 
 import (
 	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
-	"github.com/irisnet/irishub-sync/util/constant"
+	"github.com/irisnet/irishub-sync/types"
 	"github.com/irisnet/irishub-sync/util/helper"
 )
 
@@ -15,7 +15,7 @@ import (
 func calculateAndSaveValidatorUpTime() {
 	var (
 		methodName    = "AnalyzeValidatorUpTime"
-		intervalBlock = constant.IntervalBlockNumCalculateValidatorUpTime
+		intervalBlock = types.IntervalBlockNumCalculateValidatorUpTime
 		blockModel    document.Block
 		syncTaskModel document.SyncTask
 		model         document.ValidatorUpTime
@@ -73,8 +73,7 @@ func calculateAndSaveValidatorUpTime() {
 
 func MakeCalculateAndSaveValidatorUpTimeTask() Task {
 	return NewLockTaskFromEnv(conf.CronCalculateUpTime, "calculate_and_save_validator_uptime_lock", func() {
-		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] begin===================")
+		logger.Info("start cron", logger.String("cronNm", "calculateAndSaveValidatorUpTime"))
 		calculateAndSaveValidatorUpTime()
-		logger.Debug("========================task's trigger [CalculateAndSaveValidatorUpTime] end===================")
 	})
 }
