@@ -23,15 +23,14 @@ import (
 )
 
 type (
-	MsgTransfer = bank.MsgSend
+	MsgSend = bank.MsgSend
 
-	MsgStakeCreate         = stake.MsgCreateValidator
-	MsgStakeEdit           = stake.MsgEditValidator
-	MsgStakeDelegate       = stake.MsgDelegate
-	MsgStakeBeginUnbonding = stake.MsgBeginUnbonding
-	MsgBeginRedelegate     = stake.MsgBeginRedelegate
-	MsgUnjail              = slashing.MsgUnjail
-	//MsgSetWithdrawAddress          = distribution.MsgSetWithdrawAddress
+	MsgCreateValidator             = stake.MsgCreateValidator
+	MsgEditValidator               = stake.MsgEditValidator
+	MsgDelegate                    = stake.MsgDelegate
+	MsgBeginUnbonding              = stake.MsgBeginUnbonding
+	MsgBeginRedelegate             = stake.MsgBeginRedelegate
+	MsgUnjail                      = slashing.MsgUnjail
 	MsgWithdrawDelegatorReward     = distribution.MsgWithdrawDelegatorReward
 	MsgWithdrawDelegatorRewardsAll = distribution.MsgWithdrawDelegatorRewardsAll
 	MsgWithdrawValidatorRewardsAll = distribution.MsgWithdrawValidatorRewardsAll

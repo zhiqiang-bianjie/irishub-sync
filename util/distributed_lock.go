@@ -1,4 +1,4 @@
-package helper
+package util
 
 import (
 	"github.com/hashicorp/consul/api"

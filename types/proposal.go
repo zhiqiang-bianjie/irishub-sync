@@ -1,9 +1,5 @@
 package types
 
-import (
-	"encoding/json"
-)
-
 type SubmitProposal struct {
 	Title          string `json:"title"`          //  Title of the proposal
 	Description    string `json:"description"`    //  Description of the proposal
@@ -40,20 +36,6 @@ func NewSubmitProposal(msg MsgSubmitProposal) SubmitProposal {
 	}
 }
 
-func (s SubmitProposal) Type() string {
-	return TxTypeSubmitProposal
-}
-
-func (s SubmitProposal) String() string {
-	str, _ := json.Marshal(s)
-	return string(str)
-}
-
-func UnmarshalSubmitProposal(str string) (submitProposal SubmitProposal) {
-	json.Unmarshal([]byte(str), &submitProposal)
-	return
-}
-
 type Vote struct {
 	ProposalID uint64 `json:"proposal_id"`
 	Voter      string `json:"voter"`
@@ -66,20 +48,6 @@ func NewVote(v MsgVote) Vote {
 		Voter:      v.Voter.String(),
 		Option:     v.Option.String(),
 	}
-}
-
-func (s Vote) Type() string {
-	return TxTypeVote
-}
-
-func (s Vote) String() string {
-	str, _ := json.Marshal(s)
-	return string(str)
-}
-
-func UnmarshalVote(str string) (vote Vote) {
-	json.Unmarshal([]byte(str), &vote)
-	return
 }
 
 type Deposit struct {
@@ -96,16 +64,18 @@ func NewDeposit(deposit MsgDeposit) Deposit {
 	}
 }
 
-func (s Deposit) Type() string {
-	return TxTypeDeposit
+type SubmitSoftwareUpgradeProposal struct {
+	SubmitProposal
+	Version      uint64 `json:"version"`
+	Software     string `json:"software"`
+	SwitchHeight uint64 `json:"switch_height"`
 }
 
-func (s Deposit) String() string {
-	str, _ := json.Marshal(s)
-	return string(str)
-}
-
-func UnmarshalDeposit(str string) (deposit Deposit) {
-	json.Unmarshal([]byte(str), &deposit)
-	return
+func NewSubmitSoftwareUpgradeProposal(msg MsgSubmitSoftwareUpgradeProposal) SubmitSoftwareUpgradeProposal {
+	return SubmitSoftwareUpgradeProposal{
+		SubmitProposal: NewSubmitProposal(msg.MsgSubmitProposal),
+		Version:        msg.Version,
+		Software:       msg.Software,
+		SwitchHeight:   msg.SwitchHeight,
+	}
 }

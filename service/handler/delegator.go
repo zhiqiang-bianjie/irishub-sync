@@ -6,7 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/util"
 	"sync"
 )
 
@@ -57,8 +57,9 @@ func SaveOrUpdateDelegator(docTx document.CommonTx, mutex sync.Mutex) {
 		modifyDelegator(docTx.From, docTx.To)
 		break
 	case types.TxTypeBeginRedelegate:
+		var msg types.BeginRedelegate
 		delAddress := docTx.From
-		msg := docTx.Msg.(types.BeginRedelegate)
+		util.Map2Struct(docTx.Msg, &msg)
 		valSrcAddr := msg.ValidatorSrcAddr
 		valDstAddr := msg.ValidatorDstAddr
 
@@ -113,7 +114,7 @@ func BuildDelegation(delAddress, valAddress string) (res tempDelegation) {
 		return res
 	}
 
-	floatShares := helper.ParseFloat(d.Shares.String())
+	floatShares := util.ParseFloat(d.Shares.String())
 	res = tempDelegation{
 		Shares:         floatShares,
 		OriginalShares: d.Shares.String(),

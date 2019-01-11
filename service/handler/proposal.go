@@ -1,25 +1,32 @@
 package handler
 
 import (
+	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/rpc"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
+	"github.com/irisnet/irishub-sync/util"
 )
 
 func handleProposal(docTx document.CommonTx) {
 	switch docTx.Type {
 	case types.TxTypeSubmitProposal:
 		if proposal, err := rpc.GetProposal(docTx.ProposalId); err == nil {
-			store.SaveOrUpdate(proposal)
+			propo := ConvertProp(proposal)
+			store.SaveOrUpdate(propo)
 		}
 	case types.TxTypeDeposit:
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			propo, _ := rpc.GetProposal(docTx.ProposalId)
-			proposal.TotalDeposit = propo.TotalDeposit
-			proposal.Status = propo.Status
-			proposal.VotingStartTime = propo.VotingStartTime
-			proposal.VotingEndTime = propo.VotingEndTime
+			prop, err := rpc.GetProposal(docTx.ProposalId)
+			if err != nil {
+				logger.Error("ProposalId not existed", logger.Uint64("ProposalId", docTx.ProposalId))
+				return
+			}
+			proposal.TotalDeposit = store.ParseCoins(prop.TotalDeposit)
+			proposal.Status = prop.Status
+			proposal.VotingStartTime = prop.VotingStartTime
+			proposal.VotingEndTime = prop.VotingEndTime
 			store.SaveOrUpdate(proposal)
 		}
 	case types.TxTypeVote:
@@ -28,10 +35,11 @@ func handleProposal(docTx document.CommonTx) {
 			return
 		}
 		if proposal, err := document.QueryProposal(docTx.ProposalId); err == nil {
-			voteMsg := docTx.Msg.(types.Vote)
+			var msg types.Vote
+			util.Map2Struct(docTx.Msg, &msg)
 			vote := document.PVote{
-				Voter:  voteMsg.Voter,
-				Option: voteMsg.Option,
+				Voter:  msg.Voter,
+				Option: msg.Option,
 				Time:   docTx.Time,
 			}
 			var i int
@@ -49,5 +57,29 @@ func handleProposal(docTx document.CommonTx) {
 			}
 			store.SaveOrUpdate(proposal)
 		}
+	}
+}
+
+func ConvertProp(prop rpc.Proposal) document.Proposal {
+	var votes []document.PVote
+	for _, v := range prop.Votes {
+		votes = append(votes, document.PVote{
+			Voter:  v.Voter,
+			Option: v.Option,
+			Time:   v.Time,
+		})
+	}
+	return document.Proposal{
+		ProposalId:      prop.ProposalId,
+		Title:           prop.Title,
+		Type:            prop.Type,
+		Description:     prop.Description,
+		Status:          prop.Status,
+		SubmitTime:      prop.SubmitTime,
+		DepositEndTime:  prop.DepositEndTime,
+		VotingStartTime: prop.VotingStartTime,
+		VotingEndTime:   prop.VotingEndTime,
+		TotalDeposit:    store.ParseCoins(prop.TotalDeposit),
+		Votes:           votes,
 	}
 }

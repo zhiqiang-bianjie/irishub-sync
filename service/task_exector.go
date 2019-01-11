@@ -257,8 +257,8 @@ func parseBlock(b int64, client *rpc.Client) (document.Block, error) {
 	if block.BlockMeta.Header.NumTxs > 0 {
 		txs := block.Block.Data.Txs
 		for _, txByte := range txs {
-			docTx := rpc.ParseTx(txByte, block.Block)
-			txHash := rpc.GetTxHash(txByte.Hash())
+			docTx := handler.ParseTx(txByte, block.Block)
+			txHash := handler.GetTxHash(txByte.Hash())
 			if txHash == "" {
 				logger.Warn("Tx has no hash, skip this tx.", logger.Any("Tx", docTx))
 				continue

@@ -2,7 +2,7 @@ package crons
 
 import (
 	conf "github.com/irisnet/irishub-sync/conf/server"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/util"
 	"time"
 )
 
@@ -17,17 +17,17 @@ type LockTask struct {
 	Spec     string
 	LockKey  string
 	cmd      Command
-	lock     *helper.DLock
+	lock     *util.DLock
 	withLock bool
 }
 
 func NewTask(spec, lockKey string, cmd Command, withLock bool) Task {
-	var lock *helper.DLock
+	var lock *util.DLock
 	if withLock {
 		if len(lockKey) == 0 {
 			panic("lockKey can not be empty")
 		}
-		lock = helper.NewLock(lockKey, 500*time.Millisecond)
+		lock = util.NewLock(lockKey, 500*time.Millisecond)
 	}
 	return &LockTask{
 		Spec:     spec,

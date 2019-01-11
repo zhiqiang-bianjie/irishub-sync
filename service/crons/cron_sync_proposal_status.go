@@ -4,6 +4,7 @@ import (
 	conf "github.com/irisnet/irishub-sync/conf/server"
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/rpc"
+	"github.com/irisnet/irishub-sync/service/handler"
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
@@ -19,9 +20,10 @@ func syncProposalStatus() {
 				return
 			}
 			if propo.Status != proposal.Status {
-				propo.SubmitTime = proposal.SubmitTime
-				propo.Votes = proposal.Votes
-				store.SaveOrUpdate(propo)
+				p := handler.ConvertProp(propo)
+				p.SubmitTime = proposal.SubmitTime
+				p.Votes = proposal.Votes
+				store.SaveOrUpdate(p)
 			}
 		}
 	}

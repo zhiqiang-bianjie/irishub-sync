@@ -5,7 +5,7 @@ import (
 	"github.com/irisnet/irishub-sync/logger"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/util"
 )
 
 // calculate and save validator upTime
@@ -48,7 +48,7 @@ func calculateAndSaveValidatorUpTime() {
 			tmp := float64(v.PreCommitsNum) / float64(intervalBlock) //注意必须是浮点数相除
 			valUpTime := document.ValidatorUpTime{
 				ValAddress: v.Address,
-				UpTime:     helper.RoundFloat(tmp*100, 0),
+				UpTime:     util.RoundFloat(tmp*100, 0),
 			}
 			valUpTimes = append(valUpTimes, valUpTime)
 		}

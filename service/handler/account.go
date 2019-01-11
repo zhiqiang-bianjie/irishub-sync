@@ -77,7 +77,7 @@ func UpdateBalance(docTx document.CommonTx, mutex sync.Mutex) {
 		}
 
 		// query balance of account
-		account.Amount = rpc.GetBalance(address)
+		account.Amount = store.ParseCoins(rpc.GetBalance(address))
 		if err := store.Update(account); err != nil {
 			logger.Error("updateAccountBalance failed", logger.String("address", account.Address), logger.String("err", err.Error()))
 		}

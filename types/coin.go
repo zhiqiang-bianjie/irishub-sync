@@ -19,6 +19,11 @@ type Fee struct {
 	Gas    int64
 }
 
+type ActualFee struct {
+	Denom  string  `json:"denom"`
+	Amount float64 `json:"amount"`
+}
+
 func ParseCoin(coinStr string) (coin Coin) {
 	var (
 		reDnm  = `[A-Za-z\-]{2,15}`

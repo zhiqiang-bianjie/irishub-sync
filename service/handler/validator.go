@@ -6,7 +6,7 @@ import (
 	"github.com/irisnet/irishub-sync/store"
 	"github.com/irisnet/irishub-sync/store/document"
 	"github.com/irisnet/irishub-sync/types"
-	"github.com/irisnet/irishub-sync/util/helper"
+	"github.com/irisnet/irishub-sync/util"
 	"sort"
 )
 
@@ -66,8 +66,8 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 		Details:  v.Description.Details,
 	}
 
-	floatTokens := helper.ParseFloat(v.Tokens.String())
-	floatDelegatorShares := helper.ParseFloat(v.DelegatorShares.String())
+	floatTokens := util.ParseFloat(v.Tokens.String())
+	floatDelegatorShares := util.ParseFloat(v.DelegatorShares.String())
 	pubKey, err := types.Bech32ifyValPub(v.ConsPubKey)
 	if err != nil {
 		logger.Error("Can't get validator pubKey", logger.String("pubKey", pubKey), logger.String("err", err.Error()))
@@ -78,7 +78,7 @@ func BuildValidatorDocument(v types.StakeValidator) document.Candidate {
 		PubKeyAddr:      v.ConsPubKey.Address().String(),
 		Jailed:          v.Jailed,
 		Tokens:          floatTokens,
-		OriginalTokens:  helper.RoundString(v.Tokens.String(), 0),
+		OriginalTokens:  util.RoundString(v.Tokens.String(), 0),
 		DelegatorShares: floatDelegatorShares,
 		Description:     description,
 		BondHeight:      v.BondHeight,
