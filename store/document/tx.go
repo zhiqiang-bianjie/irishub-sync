@@ -55,6 +55,7 @@ type CommonTx struct {
 	StakeCreateValidator StakeCreateValidator `bson:"stake_create_validator"`
 	StakeEditValidator   StakeEditValidator   `bson:"stake_edit_validator"`
 	Msg                  store.Msg            `bson:"-"`
+	MsgSvc               interface{}          `bson:"-"`
 }
 
 // Description

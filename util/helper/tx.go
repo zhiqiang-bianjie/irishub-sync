@@ -282,6 +282,92 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 		docTx.Msg = itypes.NewVote(msg)
 		docTx.ProposalId = msg.ProposalID
 		return docTx
+	case itypes.MsgSvcDef:
+		msg := msg.(itypes.MsgSvcDef)
+
+		docTx.From = msg.Author.String()
+		docTx.Amount = []store.Coin{}
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcBind:
+		msg := msg.(itypes.MsgSvcBind)
+
+		docTx.From = msg.Provider.String()
+		docTx.Amount = itypes.ParseCoins(msg.Deposit.String())
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcBindingUpdate:
+		msg := msg.(itypes.MsgSvcBindingUpdate)
+
+		docTx.From = msg.Provider.String()
+		docTx.Amount = itypes.ParseCoins(msg.Deposit.String())
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcDisable:
+		msg := msg.(itypes.MsgSvcDisable)
+
+		docTx.From = msg.Provider.String()
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcEnable:
+		msg := msg.(itypes.MsgSvcEnable)
+
+		docTx.From = msg.Provider.String()
+		docTx.Amount = itypes.ParseCoins(msg.Deposit.String())
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcRefundDeposit:
+		msg := msg.(itypes.MsgSvcRefundDeposit)
+
+		docTx.From = msg.Provider.String()
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcRequest:
+		msg := msg.(itypes.MsgSvcRequest)
+
+		docTx.From = msg.Provider.String()
+		docTx.To = msg.Consumer.String()
+		docTx.Amount = itypes.ParseCoins(msg.ServiceFee.String())
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		docTx.Memo = string(msg.Input)
+		return docTx
+	case itypes.MsgSvcResponse:
+		msg := msg.(itypes.MsgSvcResponse)
+
+		docTx.To = msg.Provider.String()
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		docTx.Memo = string(msg.Output)
+		return docTx
+	case itypes.MsgSvcRefundFees:
+		msg := msg.(itypes.MsgSvcRefundFees)
+
+		docTx.To = msg.Consumer.String()
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcWithdrawFees:
+		msg := msg.(itypes.MsgSvcWithdrawFees)
+
+		docTx.To = msg.Provider.String()
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
+	case itypes.MsgSvcWithdrawTax:
+		msg := msg.(itypes.MsgSvcWithdrawTax)
+
+		docTx.From = msg.Trustee.String()
+		docTx.To = msg.DestAddress.String()
+		docTx.Type = msg.Type()
+		docTx.MsgSvc = msg
+		return docTx
 
 	default:
 		logger.Warn("unknown msg type")

@@ -11,6 +11,7 @@ import (
 
 func HandleTx(block *types.Block) error {
 	var batch []txn.Op
+	var txs []document.CommonTx
 	for _, txByte := range block.Txs {
 		tx := helper.ParseTx(txByte, block)
 		txOp := txn.Op{
@@ -34,11 +35,12 @@ func HandleTx(block *types.Block) error {
 			}
 			batch = append(batch, txOp)
 		}
+		txs = append(txs, tx)
 		// TODO(deal with by biz system)
 		handleProposal(tx)
 		SaveOrUpdateDelegator(tx)
 	}
-
+	go handleService(txs)
 	if len(batch) > 0 {
 		err := store.Txn(batch)
 		if err != nil {

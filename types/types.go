@@ -16,6 +16,7 @@ import (
 	dtypes "github.com/irisnet/irishub/modules/distribution/types"
 	"github.com/irisnet/irishub/modules/gov"
 	"github.com/irisnet/irishub/modules/gov/tags"
+	"github.com/irisnet/irishub/modules/service"
 	"github.com/irisnet/irishub/modules/slashing"
 	"github.com/irisnet/irishub/modules/stake"
 	stags "github.com/irisnet/irishub/modules/stake/tags"
@@ -54,6 +55,17 @@ type (
 	MsgVote                          = gov.MsgVote
 	Proposal                         = gov.Proposal
 	SdkVote                          = gov.Vote
+	MsgSvcDef                        = service.MsgSvcDef
+	MsgSvcBind                       = service.MsgSvcBind
+	MsgSvcBindingUpdate              = service.MsgSvcBindingUpdate
+	MsgSvcDisable                    = service.MsgSvcDisable
+	MsgSvcEnable                     = service.MsgSvcEnable
+	MsgSvcRefundDeposit              = service.MsgSvcRefundDeposit
+	MsgSvcRequest                    = service.MsgSvcRequest
+	MsgSvcResponse                   = service.MsgSvcResponse
+	MsgSvcRefundFees                 = service.MsgSvcRefundFees
+	MsgSvcWithdrawFees               = service.MsgSvcWithdrawFees
+	MsgSvcWithdrawTax                = service.MsgSvcWithdrawTax
 
 	ResponseDeliverTx = abci.ResponseDeliverTx
 
