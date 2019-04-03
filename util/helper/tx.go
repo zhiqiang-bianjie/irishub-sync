@@ -61,19 +61,22 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	}
 	msg := msgs[0]
 
+	content := string(cdc.MustMarshalJSON(msg))
+
 	docTx = document.CommonTx{
-		Height:    height,
-		Time:      time,
-		TxHash:    txHash,
-		Fee:       fee,
-		Memo:      memo,
-		Status:    status,
-		Code:      result.Code,
-		Log:       log,
-		GasUsed:   gasUsed,
-		GasPrice:  gasPrice,
-		ActualFee: actualFee,
-		Tags:      parseTags(result),
+		Height:     height,
+		Time:       time,
+		TxHash:     txHash,
+		Fee:        fee,
+		Memo:       memo,
+		Status:     status,
+		Code:       result.Code,
+		Log:        log,
+		GasUsed:    gasUsed,
+		GasPrice:   gasPrice,
+		ActualFee:  actualFee,
+		Tags:       parseTags(result),
+		MsgContent: content,
 	}
 
 	switch msg.(type) {
@@ -331,20 +334,18 @@ func ParseTx(txBytes itypes.Tx, block *itypes.Block) document.CommonTx {
 	case itypes.MsgSvcRequest:
 		msg := msg.(itypes.MsgSvcRequest)
 
-		docTx.From = msg.Provider.String()
-		docTx.To = msg.Consumer.String()
+		docTx.From = msg.Consumer.String()
+		docTx.To = msg.Provider.String()
 		docTx.Amount = itypes.ParseCoins(msg.ServiceFee.String())
 		docTx.Type = msg.Type()
 		docTx.MsgSvc = msg
-		docTx.Memo = string(msg.Input)
 		return docTx
 	case itypes.MsgSvcResponse:
 		msg := msg.(itypes.MsgSvcResponse)
 
-		docTx.To = msg.Provider.String()
+		docTx.From = msg.Provider.String()
 		docTx.Type = msg.Type()
 		docTx.MsgSvc = msg
-		docTx.Memo = string(msg.Output)
 		return docTx
 	case itypes.MsgSvcRefundFees:
 		msg := msg.(itypes.MsgSvcRefundFees)

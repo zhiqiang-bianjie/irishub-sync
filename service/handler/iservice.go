@@ -13,6 +13,9 @@ import (
 func handleService(txs []document.CommonTx) {
 	var batch []txn.Op
 	for _, tx := range txs {
+		if tx.Status != document.TxStatusSuccess {
+			continue
+		}
 		switch tx.Type {
 		case types.MsgSvcDef{}.Type():
 			msgSvcDef := tx.MsgSvc.(types.MsgSvcDef)
@@ -43,6 +46,7 @@ func handleService(txs []document.CommonTx) {
 				Provider:    msgSvcBind.Provider.String(),
 				BindingType: msgSvcBind.BindingType.String(),
 				Deposit:     tx.Amount,
+				Prices:      types.BuildCoins(msgSvcBind.Prices),
 				Level: document.Level{
 					AvgRspTime: msgSvcBind.Level.AvgRspTime,
 					UsableTime: msgSvcBind.Level.UsableTime,
@@ -68,7 +72,6 @@ func handleService(txs []document.CommonTx) {
 					AvgRspTime: msgSvcBindUpdate.Level.AvgRspTime,
 					UsableTime: msgSvcBindUpdate.Level.UsableTime,
 				},
-				Available: true,
 			}
 			txOp := txn.Op{
 				C:  document.CollectionNmSvcBind,
@@ -116,14 +119,19 @@ func handleService(txs []document.CommonTx) {
 		case types.MsgSvcRequest{}.Type():
 			msgSvcRequest := tx.MsgSvc.(types.MsgSvcRequest)
 			var msgInvocation = document.SvcInvocation{
-				Hash:     tx.TxHash,
-				ReqId:    tx.Tags["request-id"],
-				TxType:   msgSvcRequest.Type(),
-				Consumer: msgSvcRequest.Consumer.String(),
-				Provider: msgSvcRequest.Provider.String(),
-				Height:   tx.Height,
-				Data:     string(msgSvcRequest.Input),
-				Time:     tx.Time,
+				Hash:        tx.TxHash,
+				ReqId:       tx.Tags["request-id"],
+				TxType:      msgSvcRequest.Type(),
+				DefChainID:  msgSvcRequest.DefChainID,
+				DefName:     msgSvcRequest.DefName,
+				BindChainID: msgSvcRequest.BindChainID,
+				ReqChainID:  msgSvcRequest.ReqChainID,
+				MethodID:    msgSvcRequest.MethodID,
+				Consumer:    msgSvcRequest.Consumer.String(),
+				Provider:    msgSvcRequest.Provider.String(),
+				Height:      tx.Height,
+				Data:        string(msgSvcRequest.Input),
+				Time:        tx.Time,
 			}
 			txOp := txn.Op{
 				C:      document.CollectionNmSvcInvocation,
@@ -142,6 +150,13 @@ func handleService(txs []document.CommonTx) {
 				Height:   tx.Height,
 				Data:     string(msgSvcResponse.Output),
 				Time:     tx.Time,
+			}
+			if reqs, err := msgInvocation.QueryByReqId(); err == nil && len(reqs) == 1 {
+				msgInvocation.DefChainID = reqs[0].DefChainID
+				msgInvocation.DefName = reqs[0].DefName
+				msgInvocation.BindChainID = reqs[0].BindChainID
+				msgInvocation.ReqChainID = reqs[0].ReqChainID
+				msgInvocation.MethodID = reqs[0].MethodID
 			}
 			txOp := txn.Op{
 				C:      document.CollectionNmSvcInvocation,

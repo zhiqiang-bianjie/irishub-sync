@@ -156,6 +156,21 @@ func ParseCoins(coinsStr string) (coins store.Coins) {
 	return coins
 }
 
+func BuildCoins(coins []types.Coin) (result store.Coins) {
+	for _, coin := range coins {
+		amt, err := strconv.ParseFloat(coin.Amount.String(), 64)
+		if err != nil {
+			logger.Error("Convert str to int failed", logger.Any("amount", coin.Amount))
+			return result
+		}
+		result = append(result, store.Coin{
+			Denom:  coin.Denom,
+			Amount: amt,
+		})
+	}
+	return result
+}
+
 func ParseCoin(coinStr string) (coin store.Coin) {
 	var (
 		reDnm  = `[A-Za-z\-]{2,15}`

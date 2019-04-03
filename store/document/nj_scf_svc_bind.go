@@ -22,8 +22,8 @@ type SvcBind struct {
 }
 
 type Level struct {
-	AvgRspTime int64 `json:"avg_rsp_time"`
-	UsableTime int64 `json:"usable_time"`
+	AvgRspTime int64 `bson:"avg_rsp_time"`
+	UsableTime int64 `bson:"usable_time"`
 }
 
 func (m SvcBind) Name() string {
